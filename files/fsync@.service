@@ -1,0 +1,8 @@
+[Unit]
+Description=Sync code for %i
+
+[Service]
+Environment="PATH=/usr/bin:/bin"
+
+ExecStart=%h/bin/fsync %i
+Restart=on-failure

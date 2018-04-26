@@ -1,0 +1,49 @@
+#!/bin/sh
+
+set -eu
+
+DIR="$( cd "$( dirname "$0" )" && pwd )"
+
+maybe_install() {
+    file="$1"
+    path="$2"
+
+    src="$DIR/files/$file"
+    dest="$path/$file"
+
+    if [ -e "$dest" ]; then
+        while true; do
+            echo "Overwrite $dest (y/n)? "
+            read -r yn
+            case "$yn" in
+                [Yy]* )
+                    cp "$src" "$dest"
+                    break
+                    ;;
+                [Nn]* )
+                    break
+                    ;;
+                * )
+                    echo 'Please answer y or n'
+                    ;;
+            esac
+        done
+    else
+        cp "$src" "$dest"
+    fi
+}
+
+mkdir -p "$HOME/bin"
+maybe_install fsync "$HOME/bin"
+chmod u+x "$HOME/bin/fsync"
+
+case "$(uname)" in
+    Linux )
+        mkdir -p "$HOME/.config/systemd/user"
+        maybe_install fsync@.service "$HOME/.config/systemd/user"
+        ;;
+    *)
+        echo "Unknown system: $(uname)"
+        exit 1
+        ;;
+esac

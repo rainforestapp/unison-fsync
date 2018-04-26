@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -eu
+
+REPO="$1"
+SOCKET="$(minikube service --format 'socket://{{.IP}}:{{.Port}}' "$REPO-fsync")"
+DIR="$HOME/src/rainforest/$REPO"
+
+exec unison "$DIR" "$SOCKET/" -batch -repeat watch \
+     -ignore 'Regex .*\.#.*' \
+     -ignore 'Path .*' \
+     -ignore 'Path db/*dump*' \
+     -ignore 'Path docs' \
+     -ignore 'Path log' \
+     -ignore 'Path tmp' \
+     -ignore 'Path *.log' \
+     -ignore 'Path bin' \
+     -prefer newer \
+     -preferpartial "Regex (app|lib|spec)/.* -> $DIR"
